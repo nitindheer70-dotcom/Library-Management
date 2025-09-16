@@ -2,12 +2,10 @@ Flask==3.0.3
 Flask-Login==0.6.3
 Flask-Migrate==4.0.7
 Flask-SQLAlchemy==3.1.1
+Werkzeug==3.0.3
 gunicorn==23.0.0
+python-dotenv==1.0.1
 pandas==2.2.2
 numpy==1.26.4
 openpyxl==3.1.5
 xlrd==2.0.1
-Werkzeug==3.0.3
-python-dotenv==1.0.1
-SQLAlchemy==2.0.20
-psycopg2-binary==2.9.7
