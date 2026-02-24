@@ -1,5 +1,5 @@
 # dialects/mssql/base.py
-# Copyright (C) 2005-2025 the SQLAlchemy authors and contributors
+# Copyright (C) 2005-2026 the SQLAlchemy authors and contributors
 # <see AUTHORS file>
 #
 # This module is part of SQLAlchemy and is released under
@@ -984,6 +984,7 @@ import codecs
 import datetime
 import operator
 import re
+from typing import Any
 from typing import overload
 from typing import TYPE_CHECKING
 from uuid import UUID as _python_UUID
@@ -1034,6 +1035,7 @@ from ...util import update_wrapper
 from ...util.typing import Literal
 
 if TYPE_CHECKING:
+    from ...sql.ddl import DropIndex
     from ...sql.dml import DMLState
     from ...sql.selectable import TableClause
 
@@ -2064,8 +2066,8 @@ class MSSQLCompiler(compiler.SQLCompiler):
     def visit_aggregate_strings_func(self, fn, **kw):
         expr = fn.clauses.clauses[0]._compiler_dispatch(self, **kw)
         kw["literal_execute"] = True
-        delimeter = fn.clauses.clauses[1]._compiler_dispatch(self, **kw)
-        return f"string_agg({expr}, {delimeter})"
+        delimiter = fn.clauses.clauses[1]._compiler_dispatch(self, **kw)
+        return f"string_agg({expr}, {delimiter})"
 
     def visit_concat_op_expression_clauselist(
         self, clauselist, operator, **kw
@@ -2700,11 +2702,13 @@ class MSDDLCompiler(compiler.DDLCompiler):
 
         return text
 
-    def visit_drop_index(self, drop, **kw):
-        return "\nDROP INDEX %s ON %s" % (
-            self._prepared_index_name(drop.element, include_schema=False),
-            self.preparer.format_table(drop.element.table),
+    def visit_drop_index(self, drop: DropIndex, **kw: Any) -> str:
+        index_name = self._prepared_index_name(
+            drop.element, include_schema=False
         )
+        table_name = self.preparer.format_table(drop.element.table)
+        if_exists = " IF EXISTS" if drop.if_exists else ""
+        return f"\nDROP INDEX{if_exists} {index_name} ON {table_name}"
 
     def visit_primary_key_constraint(self, constraint, **kw):
         if len(constraint) == 0:
@@ -3503,6 +3507,9 @@ join sys.schemas as sch on
 where
     tab.name = :tabname
     and sch.name = :schname
+order by
+    ind_col.index_id,
+    ind_col.key_ordinal
             """
             )
             .bindparams(
@@ -3998,6 +4005,8 @@ index_info AS (
             index_info.index_schema = fk_info.unique_constraint_schema
             AND index_info.index_name = fk_info.unique_constraint_name
             AND index_info.ordinal_position = fk_info.ordinal_position
+            AND NOT (index_info.table_schema = fk_info.table_schema
+                     AND index_info.table_name = fk_info.table_name)
 
     ORDER BY fk_info.constraint_schema, fk_info.constraint_name,
         fk_info.ordinal_position

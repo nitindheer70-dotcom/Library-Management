@@ -1,5 +1,5 @@
 # util/__init__.py
-# Copyright (C) 2005-2025 the SQLAlchemy authors and contributors
+# Copyright (C) 2005-2026 the SQLAlchemy authors and contributors
 # <see AUTHORS file>
 #
 # This module is part of SQLAlchemy and is released under
@@ -56,10 +56,12 @@ from .compat import cpython as cpython
 from .compat import dataclass_fields as dataclass_fields
 from .compat import decode_backslashreplace as decode_backslashreplace
 from .compat import dottedgetter as dottedgetter
+from .compat import freethreading as freethreading
 from .compat import has_refcount_gc as has_refcount_gc
 from .compat import inspect_getfullargspec as inspect_getfullargspec
 from .compat import is64bit as is64bit
 from .compat import local_dataclass_fields as local_dataclass_fields
+from .compat import mini_gil as mini_gil
 from .compat import osx as osx
 from .compat import py310 as py310
 from .compat import py311 as py311

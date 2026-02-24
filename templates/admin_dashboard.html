@@ -2,87 +2,198 @@
 {% block title %}Admin Dashboard{% endblock %}
 {% block nav %}
 <div class="input-group mb-3" style="width: 300px;">
-    <div class="input-group-prepend" >
+    <div class="input-group-prepend">
         <span class="input-group-text"><i class="fa fa-search"></i></span>
     </div>
     <input type="search" class="form-control" placeholder="Search books" id="search" autofocus>
 </div>
 {% endblock %}
+
 {% block content %}
 
-{% for message in get_flashed_messages() %}
-
-<div class='alert alert-warning'>
-     <button type='button' class='close' data-dismiss='alert'>&times;</button>
-     {{message}}
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Books</h5>
+                <h2>{{ total_books }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Users</h5>
+                <h2>{{ total_users }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h5 class="card-title">Issued Books</h5>
+                <h2>{{ issued_books }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5 class="card-title">Available Books</h5>
+                <h2>{{ available_books }}</h2>
+            </div>
+        </div>
+    </div>
 </div>
 
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <h5 class="card-title">Overdue Books</h5>
+                <h2>{{ overdue_books }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-secondary text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Copies</h5>
+                <h2>{{ total_copies }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
 
-{% endfor %}
 {% if books %}
-
 <div class='text-center table-responsive'>
-
-     <h1 class='display-4 text-center'>All Books</h1><br>
-     <table class="table table-dark table-bordered" id='data'>
-          <thead>
-               <th scope="col">#</th>
-               <th scope="col">Name</th>
-               <th scope="col">Author</th>
-               <th scope="col">Description</th>
-               <th scope="col">Total Copies</th>
-               <th class="col">Copies Available</th>
-               <th class="col">Copies Issued</th>
-               <th class="col">Details</th>
-          </thead>
-          <tbody>
-               {% for book in books %}
-               <tr>
-                    <td scope='row'>{{ book.id }}</td>
-                    <td>{{ book.name }}</td>
-                    <td>{{ book.author }}</td>
-                    <td>{{ book.description }}</td>
-                    <td>{{ book.total_copy }}</td>
-                    <td>{{ book.present_copy }}</td>
-                    <td>{{ book.issued_copy }}</td>
-                    <td>
-                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#{{book.id}}">
-                              Details
-                         </button>
-                    </td>
-                    <div class="modal" id="{{ book.id}}" style="color: black;">
-                         <div class="modal-dialog">
-                              <div class="modal-content">
-                                   <div class="modal-header">
-                                        <h4 class="container">
-                                             <i class="fa fa-book" style="float: left;"></i>{{book.name}}
-                                        </h4>
-                                        <button type="button" class="close" data-dismiss="modal">
-                                             &times;
-                                        </button>
-                                   </div>
-                                   <div class="text-justify ml-5 mr-5">
-                                        <p> Author ~ {{book.author}} <br>
-                                             Date Added ~ {{book.date_added}} <br>
-                                             Description ~ {{book.description}}<br>
-                                             Copies ~ {{ book.total_copy}}</p>
-                                        <hr style="border: 3px solid black;border-radius: 5px;" />
-                                        {% for i in book.copy %}
-                                        <p># ~ {{i.id}} <br>
-                                             Date Added ~ {{i.date_added}}<br>
-                                             Date Of Issue ~ {{i.date_issued}}<br>
-                                             Date of Return ~ {{i.date_return}}<br>
-                                             Issued by ~ {{i.issue.name}}</p>
-                                        <hr style="border: 3px solid black;border-radius: 5px;" />
-                                        {% endfor %}
-                                   </div>
-                              </div>
-                         </div>
+    <h1 class='display-4 text-center'>All Books</h1><br>
+    <table class="table table-dark table-bordered table-hover" id='data'>
+        <thead class="thead-light">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Author</th>
+                <th scope="col">Description</th>
+                <th scope="col">Total Copies</th>
+                <th scope="col">Available</th>
+                <th scope="col">Issued</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+            <tr>
+                <td scope='row'>{{ book.id }}</td>
+                <td>{{ book.name }}</td>
+                <td>{{ book.author }}</td>
+                <td>{{ book.description[:50] + '...' if book.description and book.description|length > 50 else book.description }}</td>
+                <td>{{ book.total_copy }}</td>
+                <td>
+                    <span class="badge badge-success">{{ book.present_copy }}</span>
+                </td>
+                <td>
+                    <span class="badge badge-warning">{{ book.issued_copy }}</span>
+                </td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal{{book.id}}">
+                            <i class="fa fa-info-circle"></i> Details
+                        </button>
+                        <a href="{{ url_for('main.remove_book', book_id=book.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to remove {{ book.name }}?')">
+                            <i class="fa fa-trash"></i>
+                        </a>
                     </div>
-               </tr>
-               {% endfor %}
-          </tbody>
-     </table>
+                    
+                    <!-- Modal -->
+                    <div class="modal fade" id="modal{{ book.id }}" tabindex="-1" role="dialog">
+                        <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                        <i class="fa fa-book"></i> {{ book.name }}
+                                    </h5>
+                                    <button type="button" class="close" data-dismiss="modal">
+                                        <span>&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body text-left">
+                                    <p><strong>Author:</strong> {{ book.author }}</p>
+                                    <p><strong>Description:</strong> {{ book.description }}</p>
+                                    <p><strong>Date Added:</strong> {{ book.date_added.strftime('%Y-%m-%d') if book.date_added else 'N/A' }}</p>
+                                    <p><strong>Total Copies:</strong> {{ book.total_copy }}</p>
+                                    
+                                    <hr>
+                                    <h6>Copy Details:</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Copy ID</th>
+                                                    <th>Date Added</th>
+                                                    <th>Date Issued</th>
+                                                    <th>Date Return</th>
+                                                    <th>Issued By</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for copy in book.copies %}
+                                                <tr>
+                                                    <td>{{ copy.id }}</td>
+                                                    <td>{{ copy.date_added.strftime('%Y-%m-%d') if copy.date_added else 'N/A' }}</td>
+                                                    <td>{{ copy.date_issued.strftime('%Y-%m-%d') if copy.date_issued else 'Not issued' }}</td>
+                                                    <td>{{ copy.date_return.strftime('%Y-%m-%d') if copy.date_return else 'N/A' }}</td>
+                                                    <td>
+                                                        {% if copy.user %}
+                                                            {{ copy.user.name }}
+                                                        {% else %}
+                                                            <span class="text-success">Available</span>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info text-center">
+    <h3>No books found in the library</h3>
+    <a href="{{ url_for('main.add_book') }}" class="btn btn-primary">Add Your First Book</a>
 </div>
 {% endif %}
+
+<script>
+// Search functionality
+document.getElementById('search').addEventListener('keyup', function() {
+    var input = this.value.toLowerCase();
+    var rows = document.querySelectorAll('#data tbody tr');
+    
+    rows.forEach(function(row) {
+        var text = row.textContent.toLowerCase();
+        row.style.display = text.includes(input) ? '' : 'none';
+    });
+});
+
+// Auto-hide alerts after 5 seconds
+setTimeout(function() {
+    var alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function(alert) {
+        alert.style.display = 'none';
+    });
+}, 5000);
+</script>
 {% endblock %}

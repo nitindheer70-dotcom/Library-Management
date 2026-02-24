@@ -1,35 +1,70 @@
 {% extends 'withoutlogin.html' %}
-{% block title %}Admin{% endblock %}
+{% block title %}Admin Login{% endblock %}
 {% block content %}
-<form class='text-center mt-5 container' style="width: 40%;" action='/admin' method='POST'>
-    {% for message in get_flashed_messages() %}
-    <div class='alert alert-warning'>
-        <button type='button' class='close' data-dismiss='alert'>&times;</button>
-        {{message}}
-    </div>
-    {% endfor %}
-    <h1 class='display-4 text-center'>Admin</h1><br>
-
-    <div class="input-group mb-3">
-        <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fa fa-user"></i></span>
-        </div>
-        <input type="text" class="form-control" placeholder="Email" name="email" required autofocus>
-    </div>
-    <div class="input-group mb-3">
-        <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fa fa-lock"></i></span>
-        </div>
-        <input type="password" class="form-control" placeholder="Password" name="password" minlength="8" id="pwd">
-        <div class='input-group-append'>
-            <div class='input-group-text'>
-                <div class='custom-control custom-switch'>
-                    <input type='checkbox' class='custom-control-input' id='showpwd' name="password" >
-                    <label class='custom-control-label' for='showpwd'></label>
-                </div>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card bg-dark text-white">
+            <div class="card-header">
+                <h3 class="text-center">
+                    <i class="fa fa-shield"></i> Admin Login
+                </h3>
+            </div>
+            <div class="card-body">
+                {% for message in get_flashed_messages(with_categories=true) %}
+                    <div class='alert alert-{{ message[0] if message[0] != "message" else "warning" }} alert-dismissible fade show'>
+                        <button type='button' class='close' data-dismiss='alert'>&times;</button>
+                        {{ message[1] }}
+                    </div>
+                {% endfor %}
+                
+                <form method='POST' action='{{ url_for("admin_login") }}'>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+                        </div>
+                        <input type="email" class="form-control" placeholder="Email" name="email" required autofocus>
+                    </div>
+                    
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                        </div>
+                        <input type="password" class="form-control" placeholder="Password" name="password" minlength="8" id="pwd" required>
+                        <div class='input-group-append'>
+                            <div class='input-group-text'>
+                                <div class='custom-control custom-switch'>
+                                    <input type='checkbox' class='custom-control-input' id='showpwd' onclick="togglePassword()">
+                                    <label class='custom-control-label' for='showpwd'>Show</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class='btn btn-lg btn-primary btn-block' type='submit'>
+                        <i class="fa fa-sign-in"></i> Sign in
+                    </button>
+                    
+                    <hr class="bg-white">
+                    
+                    <p class="text-center mb-0">
+                        <a href="{{ url_for('main.login') }}" class="text-white">
+                            <i class="fa fa-user"></i> Regular User Login
+                        </a>
+                    </p>
+                </form>
             </div>
         </div>
     </div>
-    <button class='btn btn-lg btn-primary btn-block' type='submit'>Sign in</button>
-</form>
+</div>
+
+<script>
+function togglePassword() {
+    var pwd = document.getElementById('pwd');
+    if (pwd.type === 'password') {
+        pwd.type = 'text';
+    } else {
+        pwd.type = 'password';
+    }
+}
+</script>
 {% endblock %}

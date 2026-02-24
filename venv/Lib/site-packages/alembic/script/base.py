@@ -38,12 +38,8 @@ if TYPE_CHECKING:
     from ..runtime.migration import StampStep
 
 try:
-    if compat.py39:
-        from zoneinfo import ZoneInfo
-        from zoneinfo import ZoneInfoNotFoundError
-    else:
-        from backports.zoneinfo import ZoneInfo  # type: ignore[import-not-found,no-redef] # noqa: E501
-        from backports.zoneinfo import ZoneInfoNotFoundError  # type: ignore[no-redef] # noqa: E501
+    from zoneinfo import ZoneInfo
+    from zoneinfo import ZoneInfoNotFoundError
 except ImportError:
     ZoneInfo = None  # type: ignore[assignment, misc]
 
@@ -700,6 +696,7 @@ class ScriptDirectory:
             self._ensure_directory(version_path)
 
         path = self._rev_path(version_path, revid, message, create_date)
+        self._ensure_directory(path.parent)
 
         if not splice:
             for head_ in heads:

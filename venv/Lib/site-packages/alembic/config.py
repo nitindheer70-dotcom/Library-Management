@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 from argparse import Namespace
 from configparser import ConfigParser
 import inspect
+import logging
 import os
 from pathlib import Path
 import re
@@ -26,6 +27,9 @@ from . import command
 from . import util
 from .util import compat
 from .util.pyfiles import _preserving_path_as_str
+
+
+log = logging.getLogger(__name__)
 
 
 class Config:
@@ -244,10 +248,20 @@ class Config:
             here = Path()
         self.config_args["here"] = here.as_posix()
         file_config = ConfigParser(self.config_args)
+
+        verbose = getattr(self.cmd_opts, "verbose", False)
         if self._config_file_path:
             compat.read_config_parser(file_config, [self._config_file_path])
+            if verbose:
+                log.info(
+                    "Loading config from file: %s", self._config_file_path
+                )
         else:
             file_config.add_section(self.config_ini_section)
+            if verbose:
+                log.info(
+                    "No config file provided; using in-memory default config"
+                )
         return file_config
 
     @util.memoized_property
@@ -806,6 +820,17 @@ class CommandLine:
                 action="store_true",
                 help="Write empty __init__.py files to the "
                 "environment and version locations",
+            ),
+        ),
+        "check_heads": (
+            "-c",
+            "--check-heads",
+            dict(
+                action="store_true",
+                help=(
+                    "Check if all head revisions are applied to the database. "
+                    "Exit with an error code if this is not the case."
+                ),
             ),
         ),
     }

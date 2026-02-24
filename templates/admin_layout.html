@@ -2,56 +2,98 @@
 <html lang='en'>
 
 <head>
-
-     <meta charset='utf-8'>
-     <meta name='viewport' content='width=device-width, initial-scale=1'>
-     <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css'>
-     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'>
-     <link href="https://fonts.googleapis.com/css2?family=PT+Sans&display=swap" rel="stylesheet">
-     <link rel="icon" href="{{ url_for('static',filename='user.png')}}">
-</head>
-<title>{% block title %}{% endblock %}</title>
-
-
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css'>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'>
+    <link href="https://fonts.googleapis.com/css2?family=PT+Sans&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ url_for('static', filename='user.png') }}">
+    <title>{% block title %}{% endblock %} - Admin Panel</title>
 </head>
 
-<body
-     style="font-family: 'PT Sans', sans-serif;background-image: url(https://www.pixelstalk.net/wp-content/uploads/2016/08/Library-Desktop-Wallpaper-620x388.jpg);background-size: cover;">
-     <nav class='navbar navbar-expand-lg navbar-dark bg-dark'>
-
-          <div class='container-fluid' id='navbarNav'>
-               <ul class='nav navbar-nav navbar-brand'>
+<body style="font-family: 'PT Sans', sans-serif; background-image: url(https://www.pixelstalk.net/wp-content/uploads/2016/08/Library-Desktop-Wallpaper-620x388.jpg); background-size: cover; background-attachment: fixed;">
+    
+    <nav class='navbar navbar-expand-lg navbar-dark bg-dark'>
+        <div class='container-fluid'>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class='navbar-nav mr-auto'>
                     <li class='nav-item'>
-                         <a class='navbar-brand' href='/admin/dashboard'>Admin</a>
+                        <a class='navbar-brand' href="{{ url_for('main.admin_dashboard') }}">
+                            <i class="fa fa-shield"></i> Admin Panel
+                        </a>
                     </li>
-               </ul>
-               <ul class='nav navbar-nav ml-auto'>
+                    <li class='nav-item'>
+                        <a class='nav-link' href="{{ url_for('main.admin_dashboard') }}">
+                            <i class="fa fa-dashboard"></i> Dashboard
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class='navbar-nav ml-auto'>
                     {% block nav %}{% endblock %}
-                    <li class='nav-item active ml-4'>
-                         <a class='nav-link' href='/add/book'>Add Book</a>
+                    
+                    <li class='nav-item dropdown'>
+                        <a class='nav-link dropdown-toggle' href='#' id='adminDropdown' role='button' data-toggle='dropdown'>
+                            <i class="fa fa-cog"></i> Admin Menu
+                        </a>
+                        <div class='dropdown-menu dropdown-menu-right'>
+                            <a class='dropdown-item' href="{{ url_for('main.add_book') }}">
+                                <i class="fa fa-plus-circle"></i> Add Book
+                            </a>
+                            <a class='dropdown-item' href="{{ url_for('main.admin_books') }}">
+                                <i class="fa fa-book"></i> Manage Books
+                            </a>
+                            <a class='dropdown-item' href="{{ url_for('main.admin_users') }}">
+                                <i class="fa fa-users"></i> Manage Users
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class='dropdown-item' href="{{ url_for('main.dashboard') }}">
+                                <i class="fa fa-user"></i> User Dashboard
+                            </a>
+                        </div>
                     </li>
-                    <li class='nav-item active ml-4'>
-                         <a class='nav-link' href='/remove/book'>Remove Book</a>
+                    
+                    <li class='nav-item'>
+                        <a class='nav-link' href="{{ url_for('main.logout') }}">
+                            <i class="fa fa-sign-out"></i> Logout ({{ current_user.name }})
+                        </a>
                     </li>
-                    <li class='nav-item active ml-4'>
-                         <a class='nav-link' href='/admin/logout'>Logout</a>
-                    </li>
-               </ul>
-          </div>
-     </nav>
-     <div class="container" style="color: white;text-shadow: 2px 2px 12px #000000;">
-          {% block content %}{% endblock %}
-          <hr style="border: 5px solid white;border-radius: 5px;" />
-          <footer>
-               <p>&copy; {{ year }} - Library Management System - Nitin Dheer</p>
-          </footer>
-     </div>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class='alert alert-{{ category if category != "message" else "warning" }} alert-dismissible fade show'>
+                        <button type='button' class='close' data-dismiss='alert'>&times;</button>
+                        <i class="fa fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    
+    <div class="container mt-3" style="color: white; text-shadow: 2px 2px 12px #000000;">
+        {% block content %}{% endblock %}
+        <hr style="border: 5px solid white; border-radius: 5px; margin-top: 40px;" />
+        <footer class="text-center">
+            <p>&copy; {{ year }} - Library Management System - Nitin Dheer</p>
+        </footer>
+    </div>
 
-
-     <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
-     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-     <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js'></script>
-     <script src="{{ url_for('static',filename='script.js')}}"></script>
+    <script src='https://code.jquery.com/jquery-3.4.1.slim.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js'></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 
 </html>

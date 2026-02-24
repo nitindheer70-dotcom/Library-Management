@@ -1,7 +1,7 @@
 {% extends 'admin_layout.html' %}
 {% block title %}Admin Dashboard{% endblock %}
 {% block content %}
-<form class='text-center mt-5 container' style="width: 60%;" action='/add/book' method='POST'>
+<form class='text-center mt-5 container' style="width: 60%;" action="{{ url_for('main.add_book') }}" method='POST'>
     {% for message in get_flashed_messages() %}
     <div class='alert alert-warning'>
         <button type='button' class='close' data-dismiss='alert'>&times;</button>
@@ -33,7 +33,7 @@
 </form>
 
 <h2 class='text-center mt-5'>Upload Books from Excel</h2>
-<form class='text-center mt-3 container' style="width: 60%;" action="{{ url_for('main.upload_books') }}" method='POST' enctype="multipart/form-data">
+<form class='text-center mt-3 container' style="width: 60%;" action="{{ url_for('main.bulk_import') }}" method='POST' enctype="multipart/form-data">
     <div class="input-group mb-3">
         <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-file-excel"></i></span>

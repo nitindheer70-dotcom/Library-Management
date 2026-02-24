@@ -1,0 +1,71 @@
+{% extends 'admin_layout.html' %}
+
+{% block title %}Bulk Import Books{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card bg-dark text-white">
+            <div class="card-header">
+                <h3 class="text-center">
+                    <i class="fa fa-upload"></i> Bulk Import Books from Excel/CSV
+                </h3>
+            </div>
+            <div class="card-body">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class='alert alert-{{ category if category != "message" else "warning" }} alert-dismissible fade show'>
+                                <button type='button' class='close' data-dismiss='alert'>&times;</button>
+                                <i class="fa fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Upload Form -->
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="file">Select Excel/CSV File:</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="file" name="file" 
+                                   accept=".xlsx,.xls,.csv" required>
+                            <label class="custom-file-label" for="file">Choose file...</label>
+                        </div>
+                        <small class="form-text text-muted">Supported formats: .xlsx, .xls, .csv</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fa fa-upload"></i> Import Books
+                    </button>
+                </form>
+
+                <hr class="bg-white">
+
+                <h5 class="mt-4"><i class="fa fa-info-circle"></i> File Format Instructions</h5>
+                <div class="alert alert-info">
+                    <p><strong>Required columns:</strong> <code>name</code>, <code>author</code>, <code>copies</code> (description optional)</p>
+                    <p>Example CSV:</p>
+                    <pre class="bg-light text-dark p-3 rounded">
+name,author,description,copies
+The Great Gatsby,F. Scott Fitzgerald,"A classic novel",5
+1984,George Orwell,"Dystopian novel",3</pre>
+                </div>
+                <p class="mt-3">
+                    <a href="{{ url_for('main.add_book') }}" class="btn btn-sm btn-info">
+                        <i class="fa fa-plus-circle"></i> Add Single Book Instead
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelector('.custom-file-input').addEventListener('change', function(e) {
+    var fileName = e.target.files[0].name;
+    e.target.nextElementSibling.innerText = fileName;
+});
+</script>
+{% endblock %}
